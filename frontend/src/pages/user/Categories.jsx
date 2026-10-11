@@ -554,7 +554,7 @@ const Categories = () => {
 
       {/* ================= HEADER ================= */}
       <header className="max-w-7xl mx-auto px-6 lg:px-8 pt-10">
-        
+
 
         <div className="mt-1 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
           <div>
@@ -605,11 +605,10 @@ const Categories = () => {
                 <button
                   key={group.label}
                   onClick={() => setActiveGroup(group.label)}
-                  className={`text-base px-4 py-2 rounded-full transition-colors ${
-                    isActive
+                  className={`text-base px-4 py-2 rounded-full transition-colors ${isActive
                       ? "bg-[#4a1d49] text-white font-semibold"
                       : "bg-[#efeae5] text-[#5b4f5b] hover:bg-[#e6dde4]"
-                  }`}
+                    }`}
                 >
                   {group.label}
                 </button>
@@ -678,7 +677,7 @@ const Categories = () => {
                 responsibility, and the quiet dignity of perseverance.
               </p>
 
-             
+
             </div>
 
             {/* Right cards */}
@@ -695,7 +694,11 @@ const Categories = () => {
                     <div className="relative h-[330px] rounded-md overflow-hidden bg-[#ece7e1]">
                       {book.image ? (
                         <img
-                          src={book.image}
+                          src={
+                            book.image.startsWith("http")
+                              ? book.image
+                              : `${API_URL}${book.image.startsWith("/") ? "" : "/"}${book.image}`
+                          }
                           alt={book.title}
                           className="w-full h-full object-cover"
                         />
