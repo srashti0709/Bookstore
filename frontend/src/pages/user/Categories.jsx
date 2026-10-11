@@ -741,7 +741,7 @@ const Categories = () => {
                           }}
                           className="text-base font-semibold text-[#5a2458] flex items-center gap-1 hover:underline"
                         >
-                          Read Essay
+                          Read 
                           <Icon name="arrow" className="w-3 h-3" />
                         </button>
                       </div>
