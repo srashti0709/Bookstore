@@ -1,4 +1,4 @@
-import { API_URL } from "../../api";
+import { API_URL, API_BASE_URL } from "../../api";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
