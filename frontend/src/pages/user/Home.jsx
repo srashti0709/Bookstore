@@ -440,22 +440,26 @@ const Home = () => {
                 />
               </div>
 
-              {/* Floating Editorial Card */}
-              <div className="absolute left-0 top-[4%] z-20 w-[min(225px,58%)] rounded-xl border border-white/15 bg-[#251c29]/80 p-4 shadow-2xl backdrop-blur-xl sm:left-0 sm:top-[7%] sm:p-5 lg:left-2">
-                <div className="mb-3 flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#d9a9d2]" />
+{/* Floating Editorial Card */}
+<div
+  className="absolute left-0 top-0 z-20 w-[min(185px,48%)] rounded-xl border border-white/15 bg-[#251c29]/80 p-3 shadow-2xl backdrop-blur-xl sm:left-0 sm:top-[7%] sm:w-[min(225px,58%)] sm:p-5 lg:left-2"
+>
+  <div className="mb-2 flex items-center gap-2 sm:mb-3">
+    <span className="h-2 w-2 shrink-0 rounded-full bg-[#d9a9d2] sm:h-2.5 sm:w-2.5" />
 
-                  <span className="text-base font-medium uppercase tracking-[0.1em] text-[#dfc6dc]">
-                    The art of reading
-                  </span>
-                </div>
+    <span className="text-xs font-medium uppercase tracking-[0.08em] text-[#dfc6dc] sm:text-base sm:tracking-[0.1em]">
+      The art of reading
+    </span>
+  </div>
 
-                <p className="serif text-xl leading-snug text-[#faf3f9] sm:text-2xl">
-                  Every book opens a door to another world.
-                </p>
+  <p className="serif text-base leading-snug text-[#faf3f9] sm:text-2xl">
+    Every book opens a door to another world.
+  </p>
 
-                <div className="mt-4 h-px w-10 bg-[#d9a9d2]" />
-              </div>
+  <div className="mt-3 h-px w-8 bg-[#d9a9d2] sm:mt-4 sm:w-10" />
+</div>
+
+
 
 
 
