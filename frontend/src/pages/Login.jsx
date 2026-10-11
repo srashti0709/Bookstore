@@ -1,4 +1,4 @@
-
+import { API_BASE_URL } from "../api";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -17,9 +17,10 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        `${API_BASE_URL}/auth/login`,
         { email, password }
       );
+
 
       const { token, user } = response.data;
 
@@ -53,7 +54,7 @@ const Login = () => {
       } else {
         alert(
           error.response?.data?.message ||
-            "Login failed. Please try again."
+          "Login failed. Please try again."
         );
       }
     } finally {

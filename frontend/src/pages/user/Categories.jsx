@@ -1,4 +1,4 @@
-
+import { API_URL } from "../../api";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -276,7 +276,7 @@ const Cover = ({ book, title, className = "" }) =>
       src={
         book.image.startsWith("http")
           ? book.image
-          : `http://localhost:5000${book.image.startsWith("/") ? "" : "/"}${book.image}`
+          : `${API_URL}${book.image.startsWith("/") ? "" : "/"}${book.image}`
       }
       alt={book.title}
       className={`object-cover rounded-sm shadow-[0_14px_22px_rgba(43,34,48,0.28)] ${className}`}
@@ -494,7 +494,7 @@ const Categories = () => {
 
   const fetchBooks = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/books");
+      const response = await axios.get(`${API_BASE_URL}/books`);
       setBooks(response.data);
     } catch (error) {
       console.error("Failed to fetch books:", error);

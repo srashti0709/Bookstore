@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API_URL = "http://localhost:5000";
+import { API_URL } from "../../api";
 
 const getToken = () =>
   localStorage.getItem("userToken") ||

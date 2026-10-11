@@ -1,4 +1,4 @@
-
+import { API_BASE_URL } from "../../api";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
@@ -93,7 +93,7 @@ const Explore = () => {
         const fetchBooks = async () => {
             try {
                 const response = await axios.get(
-                    "http://localhost:5000/api/books"
+                    `${API_BASE_URL}/books`
                 );
 
                 const data = Array.isArray(response.data)

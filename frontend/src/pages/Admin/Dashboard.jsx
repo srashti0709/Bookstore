@@ -2,7 +2,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/books";
+import { API_BASE_URL } from "../../api";
+
+const API_URL = `${API_BASE_URL}/books`;
 
 const Dashboard = () => {
   const [books, setBooks] = useState([]);

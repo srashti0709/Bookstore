@@ -1,4 +1,4 @@
-
+import { API_BASE_URL } from "../api";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -26,16 +26,17 @@ const Register = () => {
 
     try {
       await axios.post(
-        "http://localhost:5000/api/auth/register",
+        `${API_BASE_URL}/auth/register`,
         { name, email, password }
       );
+
 
       alert("Registration successful! Please log in.");
       navigate("/login", { replace: true });
     } catch (error) {
       alert(
         error.response?.data?.message ||
-          "Registration failed. Please try again."
+        "Registration failed. Please try again."
       );
     } finally {
       setLoading(false);
@@ -410,12 +411,11 @@ const Register = () => {
                       confirmPassword.length > 0 &&
                       password !== confirmPassword
                     }
-                    className={`${inputClass} pr-12 ${
-                      confirmPassword.length > 0 &&
-                      password !== confirmPassword
+                    className={`${inputClass} pr-12 ${confirmPassword.length > 0 &&
+                        password !== confirmPassword
                         ? "border-red-300 focus:border-red-400 focus:ring-red-100"
                         : ""
-                    }`}
+                      }`}
                   />
 
                   <button
