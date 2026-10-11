@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const supabase = require("./config/supabase");
 
 const bookRoutes = require("./routes/bookRoutes");
 const authRoutes = require("./routes/authRoutes");
@@ -27,6 +28,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Bookstore API is running" });
 });
 
+
 app.get("/api/books/:id/read", async (req, res) => {
   try {
     const book = await Book.findById(req.params.id);
@@ -35,11 +37,7 @@ app.get("/api/books/:id/read", async (req, res) => {
       return res.status(404).json({ message: "Book not found" });
     }
 
-    if (!book.contentUrl?.startsWith("/uploads/books/")) {
-      return res.status(404).json({ message: "Book file not found" });
-    }
-
-    // Free books remain available without login.
+    // Verify purchase before serving a premium book
     if (book.accessType === "premium") {
       const authHeader = req.headers.authorization;
 
@@ -74,29 +72,83 @@ app.get("/api/books/:id/read", async (req, res) => {
       }
     }
 
-    const filename = path.basename(book.contentUrl);
+    // Read PDFs stored in Supabase
+    if (book.contentUrl?.startsWith("supabase://")) {
+      const filename = path.basename(
+        book.contentUrl.slice("supabase://".length)
+      );
 
-    const filePath = path.join(
-      __dirname,
-      "../uploads/books",
-      filename
-    );
+      if (!filename || filename === "." || filename === "..") {
+        return res.status(404).json({
+          message: "Book file not found",
+        });
+      }
 
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({
-        message: "Book file not found",
-      });
+      const { data, error } = await supabase.storage
+        .from(process.env.SUPABASE_BUCKET || "books")
+        .createSignedUrl(filename, 60);
+
+      if (error || !data?.signedUrl) {
+        console.error("Supabase signed URL error:", error?.message);
+
+        return res.status(404).json({
+          message: "Book file not found in storage",
+        });
+      }
+
+      const pdfResponse = await fetch(data.signedUrl);
+
+      if (!pdfResponse.ok) {
+        console.error("PDF download failed:", pdfResponse.status);
+
+        return res.status(502).json({
+          message: "Could not retrieve book PDF",
+        });
+      }
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `inline; filename="${filename}"`
+      );
+
+      const pdfBuffer = Buffer.from(
+        await pdfResponse.arrayBuffer()
+      );
+
+      return res.send(pdfBuffer);
     }
 
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader(
-      "Content-Disposition",
-      `inline; filename="${filename}"`
-    );
+    // Keep support for older PDFs stored locally
+    if (book.contentUrl?.startsWith("/uploads/books/")) {
+      const filename = path.basename(book.contentUrl);
+      const filePath = path.join(
+        __dirname,
+        "../uploads/books",
+        filename
+      );
 
-    return res.sendFile(filePath);
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({
+          message: "Book file not found",
+        });
+      }
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `inline; filename="${filename}"`
+      );
+
+      return res.sendFile(filePath);
+    }
+
+    return res.status(404).json({
+      message: "Book file not found",
+    });
   } catch (error) {
     console.error("Book reading error:", error);
+
     return res.status(500).json({
       message: "Could not open book",
     });

@@ -82,61 +82,89 @@ const BookDetails = () => {
     };
   }, [id]);
 
-  const openBook = async () => {
-    if (!book?.contentUrl) {
-      alert("Book content is not available.");
-      return;
+  
+const openBook = async () => {
+  const token = getToken();
+
+  if (book.accessType === "premium" && !token) {
+    alert("Please log in to read your purchased book.");
+    navigate("/login");
+    return;
+  }
+
+  // Open the tab immediately to avoid browser popup blocking.
+  const newTab = window.open("about:blank", "_blank");
+
+  if (!newTab) {
+    alert("Please allow pop-ups for this website to read your book.");
+    return;
+  }
+
+  newTab.opener = null;
+
+  try {
+    newTab.document.title = "Loading your book...";
+
+    const response = await axios.get(
+      `${API_URL}/api/books/${id}/read`,
+      {
+        headers: token
+          ? { Authorization: `Bearer ${token}` }
+          : {},
+        responseType: "blob",
+      }
+    );
+
+    // Verify that the response contains a PDF.
+    const contentType = response.headers["content-type"] || "";
+
+    if (
+      !contentType.toLowerCase().includes("application/pdf") &&
+      !response.data.type?.toLowerCase().includes("application/pdf")
+    ) {
+      const errorText = await response.data.text().catch(() => "");
+
+      throw new Error(
+        errorText || "The server did not return a valid PDF file."
+      );
     }
 
-    const token = getToken();
+    const pdfUrl = URL.createObjectURL(response.data);
 
-    if (book.accessType === "premium" && !token) {
-      alert("Please log in to read your purchased book.");
+    // Display the PDF in the already-opened tab.
+    newTab.location.href = pdfUrl;
+
+    // Release the temporary URL when the tab is closed.
+    const cleanup = () => URL.revokeObjectURL(pdfUrl);
+
+    newTab.addEventListener("pagehide", cleanup, { once: true });
+  } catch (error) {
+    console.error("Read API URL:", `${API_URL}/api/books/${id}/read`);
+console.error("HTTP status:", error.response?.status);
+console.error("Backend response:", error.response?.data);
+console.error("Book contentUrl:", book?.contentUrl);
+
+    if (!newTab.closed) {
+      newTab.close();
+    }
+
+    if (error.response?.status === 401) {
+      alert("Your session has expired. Please log in again.");
       navigate("/login");
-      return;
+    } else if (error.response?.status === 403) {
+      alert("You need to purchase this book before reading it.");
+      setHasAccess(false);
+    } else {
+      const message =
+        error.message ||
+        error.response?.data?.message ||
+        "Unable to open the PDF. Please try again.";
+
+      alert(message);
     }
+  }
+};
 
-    try {
-      const response = await axios.get(
-        `${API_URL}/api/books/${id}/read`,
-        {
-          headers: token
-            ? { Authorization: `Bearer ${token}` }
-            : {},
-          responseType: "blob",
-        }
-      );
-
-      const pdfUrl = URL.createObjectURL(response.data);
-      const newTab = window.open(pdfUrl, "_blank");
-
-      if (!newTab) {
-        URL.revokeObjectURL(pdfUrl);
-        alert("Please allow pop-ups to read the book.");
-        return;
-      }
-
-      newTab.opener = null;
-      newTab.addEventListener(
-        "beforeunload",
-        () => URL.revokeObjectURL(pdfUrl),
-        { once: true }
-      );
-    } catch (error) {
-      if (error.response?.status === 401) {
-        alert("Please log in to read this book.");
-        navigate("/login");
-      } else if (error.response?.status === 403) {
-        alert("You need to purchase this particular book first.");
-        setHasAccess(false);
-      } else {
-        alert(
-          error.response?.data?.message ||
-            "Unable to open the book. Please try again."
-        );
-      }
-    }
-  };
 
   const handlePremiumPayment = async () => {
     const token = getToken();
