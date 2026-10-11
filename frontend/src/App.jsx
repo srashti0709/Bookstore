@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Home from "./pages/user/Home";
-import Dashboard from "./pages/admin/Dashboard";
+import Dashboard from "./pages/Admin/Dashboard";
 import BookDetails from "./pages/user/BookDetails";
 import About from "./pages/user/About";
 import Contact from "./pages/user/Contact";
